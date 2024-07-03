@@ -249,41 +249,43 @@ moHashString = async (str) => {
         console.log(error)
     }
 },
-moApplyChange = async (stacks = [{ xpath, hash, type: NONE, desHash, script, isCompleteSetting: false}]) => {
+moApplyChange = async (stacks) => {
     try {
         for (let i = 0; i < stacks.length; i++) {
-            if (type === NONE) {
-                return;
-            }
             let item = stacks[i];
             let currentEle = moGetELByXpath(item.xpath);
             if (!currentEle) {
                 item.isCompleteSetting = false;
-                return;
+                continue;
             }
             let currentEleHtml = currentEle.outerHTML;
             let hashData = await moHashString(currentEleHtml).then(str => str);
             if (item.hash !== hashData) {
                 item.isCompleteSetting = false;
-                return;
+                continue;
             }
             if ((item.type === 'MOVE' || item.type === 'DUPLICATE')) {
                 let desEle = moGetELByXpath(item.desXpath);
                 if (!desEle) {
                     item.isCompleteSetting = false;
-                    return;
+                    continue;
                 }
                 let currentDesEleHtml = desEle.outerHTML;
                 let hashDesData = await moHashString(currentDesEleHtml).then(str => str);
                 if (item.desHash !== hashDesData) {
                     item.isCompleteSetting = false;
-                    return;
+                    continue;
                 }
             }
             if (item.isCompleteSetting) {
-                return;
+                continue;
             }
-            eval(item.script);
+            item.isCompleteSetting = true;
+            try {
+                eval(item.script);
+            } catch (error) {
+                console.log(error);
+            }
         }
     } catch (error) {
         console.log(error)
