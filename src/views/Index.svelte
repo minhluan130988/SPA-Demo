@@ -313,7 +313,7 @@
               </a>
             </div>
             <div class="my-4 w-full lg:w-6/12 px-4 lg:mt-16">
-              <a href="https://www.creative-tim.com/learning-lab/tailwind/js/alerts/notus?ref=ns-index" target="_blank">
+              <a href="https://minhluanpham1309.github.io/TakedaBlog/about.html" target="_blank">
                 <div class="bg-yellow-500 shadow-lg rounded-lg text-center p-8">
                   <img
                     alt="..."
