@@ -43,30 +43,19 @@ var mierucaOptimize = function () {
         init();
     };
 
-    this.init = () => {
-        window.__mieruca_optimize_queue = window.__mieruca_optimize_queue || [];
-        for (let i = 0; i < window.__optimizeid.length; i++) {
-            let siteCode = window.__optimizeid[i][0];
-            if (!window.__mieruca_optimize_queue.includes(siteCode)) {
-                window.__mieruca_optimize_queue.push(siteCode);
-                visualEditorCommunicate();
-                if (isHMCapture()) {
-                    return;
-                }
-                handleCrossDomainParam();
-                loadRedirectScript(siteCode);
-                if (urlParams.has("_mo_ab_preview_mode")) {
-                    loadViewModeScript(siteCode);
-                } else if (urlParams.has("_mo_ab_preview_pid")) {
-                    loadABPreviewScript(siteCode);
-                } else {
-                    loadABTestScript(siteCode);
-                }
-            }
+    this.init = (siteCode) => {
+        visualEditorCommunicate();
+        if (isHMCapture()) {
+            return;
         }
-        if (!window.__mieruca_optimize_url_change_handler) {
-            window.__mieruca_optimize_url_change_handler = true;
-            moUrlChangeListener(reloadAbProcess, null);
+        handleCrossDomainParam();
+        loadRedirectScript(siteCode);
+        if (urlParams.has("_mo_ab_preview_mode")) {
+            loadViewModeScript(siteCode);
+        } else if (urlParams.has("_mo_ab_preview_pid")) {
+            loadABPreviewScript(siteCode);
+        } else {
+            loadABTestScript(siteCode);
         }
     };
 
@@ -198,27 +187,15 @@ var mierucaOptimize = function () {
     }
 };
 
-var moUrlChangeListener = function (callbackFn, callbackArg) {
-    // The popstate event is triggered when the user clicks the browser's back or forward buttons, or when the history.back(), history.forward(), 
-    // or history.go() methods are called
-    window.addEventListener('popstate', function(event) {
-        // The URL has changed, do something here
-        if (callbackFn) {
-            callbackFn(callbackArg);
-        }
-    });
-    // To detect URL changes caused by history.pushState() or history.replaceState()
-    // override the default behavior of these methods and manually trigger the popstate event
-    var pushState = history.pushState;
-    history.pushState = function(state, title, url) {
-        pushState.apply(history, arguments);
-        window.dispatchEvent(new Event('popstate'));
-    };
-}
-
 (function () {
+    window.__mieruca_optimize_queue = window.__mieruca_optimize_queue || [];
     window.__mieruca_optimize = new mierucaOptimize();
-    window.__mieruca_optimize.init();
+    for (let i = 0; i < window.__optimizeid.length; i++) {
+        if (!window.__mieruca_optimize_queue.includes(window.__optimizeid[i][0])) {
+            window.__mieruca_optimize_queue.push(window.__optimizeid[i][0]);
+            window.__mieruca_optimize.init(window.__optimizeid[i][0]);
+        }
+    }
 }()),
 moObserverHandler = function (callbackFn, callbackArg, config = {
         childList: true,
@@ -235,7 +212,23 @@ moObserverHandler = function (callbackFn, callbackArg, config = {
     observer.observe(document.body, config);
     return observer;
 },
-
+moUrlChangeListener = function (callbackFn, callbackArg) {
+    // The popstate event is triggered when the user clicks the browser's back or forward buttons, or when the history.back(), history.forward(), 
+    // or history.go() methods are called
+    window.addEventListener('popstate', function(event) {
+        // The URL has changed, do something here
+        if (callbackFn) {
+            callbackFn(callbackArg);
+        }
+    });
+    // To detect URL changes caused by history.pushState() or history.replaceState()
+    // override the default behavior of these methods and manually trigger the popstate event
+    var pushState = history.pushState;
+    history.pushState = function(state, title, url) {
+        pushState.apply(history, arguments);
+        window.dispatchEvent(new Event('popstate'));
+    };
+}
 moGetELByXpath = (xpath) => {
     return document.evaluate(xpath, document.body, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 },
