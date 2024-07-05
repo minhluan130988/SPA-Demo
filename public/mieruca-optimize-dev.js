@@ -36,26 +36,35 @@ var mierucaOptimize = function () {
     protocol = this.protocol,
     encodeValue = this.encodeValue,
     getCombineCookie = this.getCombineCookie;
-    window.__optimizeid = window.__optimizeid || [];__optimizeid.push([1405081745]);
 
     var reloadAbProcess = function() {
         window.__mieruca_optimize_queue = [];
         init();
     };
 
-    this.init = (siteCode) => {
-        visualEditorCommunicate();
-        if (isHMCapture()) {
-            return;
+    this.init = () => {
+        window.__mieruca_optimize_queue = window.__mieruca_optimize_queue || [];
+        for (let i = 0; i < window.__optimizeid.length; i++) {
+            let siteCode = window.__optimizeid[i][0];
+            if (!window.__mieruca_optimize_queue.includes(siteCode)) {
+                window.__mieruca_optimize_queue.push(siteCode);
+                if (isHMCapture()) {
+                    return;
+                }
+                handleCrossDomainParam();
+                loadRedirectScript(siteCode);
+                if (urlParams.has("_mo_ab_preview_mode")) {
+                    loadViewModeScript(siteCode);
+                } else if (urlParams.has("_mo_ab_preview_pid")) {
+                    loadABPreviewScript(siteCode);
+                } else {
+                    loadABTestScript(siteCode);
+                }
+            }
         }
-        handleCrossDomainParam();
-        loadRedirectScript(siteCode);
-        if (urlParams.has("_mo_ab_preview_mode")) {
-            loadViewModeScript(siteCode);
-        } else if (urlParams.has("_mo_ab_preview_pid")) {
-            loadABPreviewScript(siteCode);
-        } else {
-            loadABTestScript(siteCode);
+        if (!window.__mieruca_optimize_url_change_handler) {
+            window.__mieruca_optimize_url_change_handler = true;
+            //urlChangeHandler(reloadAbProcess);
         }
     };
 
@@ -188,14 +197,10 @@ var mierucaOptimize = function () {
 };
 
 (function () {
+    window.__optimizeid = window.__optimizeid || [];__optimizeid.push([1405081745]);
     window.__mieruca_optimize_queue = window.__mieruca_optimize_queue || [];
     window.__mieruca_optimize = new mierucaOptimize();
-    for (let i = 0; i < window.__optimizeid.length; i++) {
-        if (!window.__mieruca_optimize_queue.includes(window.__optimizeid[i][0])) {
-            window.__mieruca_optimize_queue.push(window.__optimizeid[i][0]);
-            window.__mieruca_optimize.init(window.__optimizeid[i][0]);
-        }
-    }
+    window.__mieruca_optimize.init();
 }()),
 moObserverHandler = function (callbackFn, callbackArg, config = {
         childList: true,
