@@ -66,7 +66,7 @@ var mierucaOptimize = function () {
         }
         if (!window.__mieruca_optimize_url_change_handler) {
             window.__mieruca_optimize_url_change_handler = true;
-            urlChangeHandler(reloadAbProcess);
+            moUrlChangeListener(reloadAbProcess, null);
         }
     };
 
