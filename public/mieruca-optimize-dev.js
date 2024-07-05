@@ -39,10 +39,10 @@ var mierucaOptimize = function () {
 
     var reloadAbProcess = function() {
         window.__mieruca_optimize_queue = [];
-        init();
+        window.__mieruca_optimize.init();
     };
 
-    var init = () => {
+    this.init = () => {
         window.__mieruca_optimize_queue = window.__mieruca_optimize_queue || [];
         for (let i = 0; i < window.__optimizeid.length; i++) {
             let siteCode = window.__optimizeid[i][0];
