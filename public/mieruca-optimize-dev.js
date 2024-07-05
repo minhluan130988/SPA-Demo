@@ -1,6 +1,6 @@
 var mierucaOptimize = function () {
 
-    this.protocol = window.location.protocol;
+    this.protocol = "http:";
 
     this.encodeValue = (value) => {
         return encodeURIComponent(value);
@@ -36,6 +36,7 @@ var mierucaOptimize = function () {
     protocol = this.protocol,
     encodeValue = this.encodeValue,
     getCombineCookie = this.getCombineCookie;
+    window.__optimizeid = window.__optimizeid || [];__optimizeid.push([1405081745]);
 
     var reloadAbProcess = function() {
         window.__mieruca_optimize_queue = [];
@@ -73,7 +74,7 @@ var mierucaOptimize = function () {
         let a = document.createElement('script');
         a.type = 'text/javascript';
         a.async = true;
-        a.src = protocol + '//dev.ntopt.mieru-ca.com/redirect-url/embed'
+        a.src = protocol + '//localhost:8082/redirect-url/embed'
         + '?siteId=' + encodeValue(siteCode)
         + '&visitorUrl=' + encodeValue(url.toString())
         + '&dv=' + encodeValue(getDeviceType())
@@ -88,7 +89,7 @@ var mierucaOptimize = function () {
         let a = document.createElement('script');
         a.type = 'text/javascript';
         a.async = true;
-        a.src = protocol + '//dev.ntopt.mieru-ca.com/ab/preview'
+        a.src = protocol + '//localhost:8082/ab/preview'
         + '?sId=' + encodeValue(siteCode)
         + '&dv=' + encodeValue(device)
         + '&pId=' + encodeValue(urlParams.get('_mo_ab_preview_pid') || '');
@@ -99,7 +100,7 @@ var mierucaOptimize = function () {
         let a = document.createElement('script');
         a.type = 'text/javascript';
         a.async = true;
-        a.src = protocol + '//dev.ntopt.mieru-ca.com/ab/embed'
+        a.src = protocol + '//localhost:8082/ab/embed'
         + '?siteId=' + encodeValue(siteCode)
         + '&visitorUrl=' + encodeValue(url.toString())
         + '&dv=' + encodeValue(getDeviceType())
@@ -112,7 +113,7 @@ var mierucaOptimize = function () {
         let a = document.createElement('script');
         a.type = 'text/javascript';
         a.async = true;
-        a.src = protocol + '//dev.ntopt.mieru-ca.com/ab/view'
+        a.src = protocol + '//localhost:8082/ab/view'
         + '?sId=' + encodeValue(siteCode)
         + '&visitorUrl=' + encodeValue(url.toString())
         + '&pId=' + encodeValue(urlParams.get('_mo_ab_preview_mode') || '')
@@ -164,6 +165,36 @@ var mierucaOptimize = function () {
         });
         urlParams.delete('_mo');
         url.search = urlParams.toString();
+    },
+
+    visualEditorCommunicate = () => {
+        let parent = window.opener;
+        if (!parent || !document.referrer || new URL(document.referrer).origin !== "https://app.mieru-ca.com") {
+            return;
+        }
+        // Listen for messages from the sender tab
+        window.addEventListener('message', (event) => {
+            if (event.origin !== "https://app.mieru-ca.com") {
+                return;
+            }
+            let dataMessage = event.data;
+            switch (dataMessage.action) {
+                case "VISUAL_EDITOR_SCRIPT" : {
+                    if (dataMessage.status === "open" && dataMessage.code === siteId) {
+                        event.source.postMessage({
+                            "action" : "VISUAL_EDITOR_SCRIPT",
+                            "status" : "ready"
+                        },event.origin);                        
+                        let a = document.createElement("script");
+                        a.type = "text/javascript",
+                        a.async = !0,
+                        a.src = "https://dev.opt.mieru-ca.com/service/js/mieruca-optimize-ve.js";
+                        let n = document.getElementsByTagName("script")[0];
+                        n.parentNode.insertBefore(a, n);
+                    }
+                }
+            }
+        });
     }
 };
 
