@@ -198,6 +198,24 @@ var mierucaOptimize = function () {
     }
 };
 
+var moUrlChangeListener = function (callbackFn, callbackArg) {
+    // The popstate event is triggered when the user clicks the browser's back or forward buttons, or when the history.back(), history.forward(), 
+    // or history.go() methods are called
+    window.addEventListener('popstate', function(event) {
+        // The URL has changed, do something here
+        if (callbackFn) {
+            callbackFn(callbackArg);
+        }
+    });
+    // To detect URL changes caused by history.pushState() or history.replaceState()
+    // override the default behavior of these methods and manually trigger the popstate event
+    var pushState = history.pushState;
+    history.pushState = function(state, title, url) {
+        pushState.apply(history, arguments);
+        window.dispatchEvent(new Event('popstate'));
+    };
+}
+
 (function () {
     window.__mieruca_optimize = new mierucaOptimize();
     window.__mieruca_optimize.init();
@@ -285,21 +303,3 @@ moApplyChange = async (stacks) => {
         console.log(error)
     }
 };
-
-var moUrlChangeListener = function (callbackFn, callbackArg) {
-    // The popstate event is triggered when the user clicks the browser's back or forward buttons, or when the history.back(), history.forward(), 
-    // or history.go() methods are called
-    window.addEventListener('popstate', function(event) {
-        // The URL has changed, do something here
-        if (callbackFn) {
-            callbackFn(callbackArg);
-        }
-    });
-    // To detect URL changes caused by history.pushState() or history.replaceState()
-    // override the default behavior of these methods and manually trigger the popstate event
-    var pushState = history.pushState;
-    history.pushState = function(state, title, url) {
-        pushState.apply(history, arguments);
-        window.dispatchEvent(new Event('popstate'));
-    };
-}
