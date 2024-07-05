@@ -217,7 +217,7 @@ moObserverHandler = function (callbackFn, callbackArg, config = {
     observer.observe(document.body, config);
     return observer;
 },
-moUrlChangeListener = function (callbackFn, callbackArg) {
+moUrlChangeListener = (function (callbackFn, callbackArg) {
     // The popstate event is triggered when the user clicks the browser's back or forward buttons, or when the history.back(), history.forward(), 
     // or history.go() methods are called
     window.addEventListener('popstate', function(event) {
@@ -233,7 +233,7 @@ moUrlChangeListener = function (callbackFn, callbackArg) {
         pushState.apply(history, arguments);
         window.dispatchEvent(new Event('popstate'));
     };
-},
+})(),
 moGetELByXpath = (xpath) => {
     return document.evaluate(xpath, document.body, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 },
